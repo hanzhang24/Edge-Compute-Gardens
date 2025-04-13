@@ -2,7 +2,7 @@
 venv/
 env/
 ENV/
-
+chrome-profile/
 # Python
 __pycache__/
 *.py[cod]
