@@ -10,7 +10,7 @@ LATENCY_LOG = "latency_log.txt"
 UPLOAD_FOLDER = "uploads"
 DEFAULT_IMAGE = "image.jpg"
 DEFAULT_IMAGE_PATH = os.path.join(UPLOAD_FOLDER, DEFAULT_IMAGE)
-GRADIO_API_URL = "https://huggingface.co/spaces/ilovexmlparsing/DukeGardens"  # Replace with your Gradio Space URL
+GRADIO_API_URL = "Ilovexmlparsing/DukeGardens"  # Replace with your Gradio Space URL
 
 # Initialize Gradio client
 client = Client(GRADIO_API_URL)
@@ -55,6 +55,10 @@ def uploaded_file(filename):
 
 def update_recommendation():
     """Update the recommendation by calling the Gradio API"""
+    if client is None:
+        latest_data["recommendation"] = "Warning: Gradio Space is not available. Running in offline mode."
+        return
+        
     try:
         # Prepare image path if it exists
         image_path = latest_data["image"] if os.path.exists(latest_data["image"]) else None

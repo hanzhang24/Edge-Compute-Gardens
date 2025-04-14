@@ -42,3 +42,7 @@ data/training/images/
 
 # Garden project folder
 garden_project/
+chrome-profile/
+data/
+data_collection
+
