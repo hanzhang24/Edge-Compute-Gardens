@@ -51,7 +51,7 @@ def train_model():
     print(f"Using device: {device}")
     
     # Create dataset and dataloader
-    dataset = GardenDataset('data/training/training_dataset.csv')
+    dataset = GardenDataset('data/training/modified_training_dataset.csv')
     dataloader = DataLoader(dataset, batch_size=32, shuffle=True, num_workers=0)  # Set num_workers to 0 for debugging
     
     # Initialize model
@@ -60,6 +60,9 @@ def train_model():
     # Define loss and optimizer
     criterion = nn.MSELoss()  # Using MSE since we're predicting a continuous score
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    
+    # Initialize best loss to infinity
+    best_loss = float('inf')
     
     # Training loop
     num_epochs = 10
@@ -89,13 +92,17 @@ def train_model():
             total_loss += loss.item()
             pbar.set_postfix({'loss': f'{loss.item():.4f}'})
         
-        # Print epoch statistics
+        # Calculate average loss for the epoch
         avg_loss = total_loss / len(dataloader)
         print(f'Epoch {epoch+1}/{num_epochs}, Average Loss: {avg_loss:.4f}')
+        
+        # Save model if it's the best so far
+        if avg_loss < best_loss:
+            best_loss = avg_loss
+            torch.save(model.state_dict(), 'garden_model_golden.pth')
+            print(f"New best model saved with loss: {best_loss:.4f}")
     
-    # Save the trained model
-    torch.save(model.state_dict(), 'garden_model.pth')
-    print("Model saved to garden_model.pth")
+    print(f"Training completed. Best loss achieved: {best_loss:.4f}")
 
 if __name__ == "__main__":
     train_model() 

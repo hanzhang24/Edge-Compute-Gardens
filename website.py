@@ -58,22 +58,29 @@ def uploaded_file(filename):
 
 def update_recommendation():
     """Update the recommendation if we have all necessary data"""
-    if latest_data["temperature"] is not None and latest_data["humidity"] is not None:
-        image_path = os.path.join(UPLOAD_FOLDER, DEFAULT_IMAGE)
-        if os.path.exists(image_path):
-            score, recommendation = model.get_recommendation(
-                image_path,
-                latest_data["temperature"],
-                latest_data["humidity"]
-            )
-            latest_data["recommendation"] = recommendation
-            
-            # Update the data table
-            latest_data["data"]["rows"] = [
-                ["Temperature", f"{latest_data['temperature']:.1f}°F"],
-                ["Humidity", f"{latest_data['humidity']:.1f}%"],
-                ["Last Updated", datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
-            ]
+    # Get current date
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    
+    # Get image path if it exists
+    image_path = os.path.join(UPLOAD_FOLDER, latest_data["image"]) if os.path.exists(os.path.join(UPLOAD_FOLDER, latest_data["image"])) else None
+    
+    # Get prediction from model
+    score, recommendation = model.get_recommendation(
+        image_path=image_path,
+        temperature=latest_data["temperature"],
+        humidity=latest_data["humidity"],
+        date_str=current_date
+    )
+    
+    # Update the recommendation
+    latest_data["recommendation"] = recommendation
+    
+    # Update the data table
+    latest_data["data"]["rows"] = [
+        ["Temperature", f"{latest_data['temperature']:.1f}°F" if latest_data['temperature'] is not None else "N/A"],
+        ["Humidity", f"{latest_data['humidity']:.1f}%" if latest_data['humidity'] is not None else "N/A"],
+        ["Last Updated", datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
+    ]
 
 @app.route('/upload', methods=['POST'])
 def receive_data():

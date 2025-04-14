@@ -99,27 +99,38 @@ class GardenRecommender(nn.Module):
         output = self.combined_network(combined)
         return output
     
-    def get_recommendation(self, image_path, temperature, humidity, date_str=None):
+    def get_recommendation(self, image_path=None, temperature=None, humidity=None, date_str=None):
         """
-        Generate a recommendation given an image and environmental data
+        Generate a recommendation given available data. Any parameter can be None.
         Args:
-            image_path: Path to the image
-            temperature: Temperature in Fahrenheit
-            humidity: Humidity percentage
-            date_str: Date string in format 'YYYY-MM-DD'
+            image_path: Path to the image (optional)
+            temperature: Temperature in Fahrenheit (optional)
+            humidity: Humidity percentage (optional)
+            date_str: Date string in format 'YYYY-MM-DD' (optional)
         Returns: (score, recommendation_text)
         """
-        # Extract image features
-        image_features = self.feature_extractor.extract_features(image_path)
-        image_features = torch.FloatTensor(image_features).unsqueeze(0)
+        # Set model to training mode to enable dropout
+        self.train()
+        
+        # Handle image features
+        if image_path is not None:
+            image_features = self.feature_extractor.extract_features(image_path)
+            image_features = torch.FloatTensor(image_features).unsqueeze(0)
+        else:
+            # Create a zero tensor with the same shape as image features
+            image_features = torch.zeros(1, self.feature_dim)
         
         # Process environmental data
+        if temperature is None:
+            temperature = 0  # Default value
+        if humidity is None:
+            humidity = 0  # Default value
+            
         env_data = self._process_environmental_data(
             temperature, humidity, date_str
         ).unsqueeze(0)
         
         # Generate prediction
-        self.eval()
         with torch.no_grad():
             score = self.forward(image_features, env_data).item()
         
@@ -131,7 +142,7 @@ class GardenRecommender(nn.Module):
         return score, recommendation
     
     def _generate_recommendation_text(self, score, temperature, humidity, date_str=None):
-        """Generate a detailed recommendation based on all available data"""
+        """Generate a detailed recommendation based on available data"""
         if score > 0.8:
             base_text = "Perfect day to visit Duke Gardens! 🌸"
         elif score > 0.6:
@@ -144,10 +155,12 @@ class GardenRecommender(nn.Module):
             base_text = "Not recommended today. ⛈"
             
         # Build detailed conditions text
-        conditions = [
-            f"Temperature: {temperature:.1f}°F",
-            f"Humidity: {humidity:.1f}%"
-        ]
+        conditions = []
+        
+        if temperature != 0:  # Only add if temperature was provided
+            conditions.append(f"Temperature: {temperature:.1f}°F")
+        if humidity != 0:  # Only add if humidity was provided
+            conditions.append(f"Humidity: {humidity:.1f}%")
         
         if date_str:
             try:
@@ -156,7 +169,8 @@ class GardenRecommender(nn.Module):
             except ValueError:
                 pass
             
-        return f"{base_text}\n\n" + "\n".join(conditions)
+        conditions_text = "\n".join(conditions) if conditions else "Limited data available"
+        return f"{base_text}\n\n{conditions_text}"
 
 def train_model(model, train_loader, num_epochs=10, learning_rate=0.001):
     """
