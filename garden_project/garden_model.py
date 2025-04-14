@@ -99,11 +99,11 @@ class GardenRecommender(nn.Module):
         output = self.combined_network(combined)
         return output
     
-    def get_recommendation(self, image_path=None, temperature=None, humidity=None, date_str=None):
+    def get_recommendation(self, image_input=None, temperature=None, humidity=None, date_str=None):
         """
         Generate a recommendation given available data. Any parameter can be None.
         Args:
-            image_path: Path to the image (optional)
+            image_input: Either a path to an image file or image bytes (optional)
             temperature: Temperature in Fahrenheit (optional)
             humidity: Humidity percentage (optional)
             date_str: Date string in format 'YYYY-MM-DD' (optional)
@@ -113,8 +113,8 @@ class GardenRecommender(nn.Module):
         self.train()
         
         # Handle image features
-        if image_path is not None:
-            image_features = self.feature_extractor.extract_features(image_path)
+        if image_input is not None:
+            image_features = self.feature_extractor.extract_features(image_input)
             image_features = torch.FloatTensor(image_features).unsqueeze(0)
         else:
             # Create a zero tensor with the same shape as image features
