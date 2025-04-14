@@ -77,7 +77,7 @@ def update_recommendation():
             
             # Update the data table
             latest_data["data"]["rows"] = [
-                ["Temperature", f"{latest_data['temperature']:.1f}°F" if latest_data['temperature'] is not None else "N/A"],
+                ["Temperature", f"{latest_data['temperature']:.1f}°C" if latest_data['temperature'] is not None else "N/A"],
                 ["Humidity", f"{latest_data['humidity']:.1f}%" if latest_data['humidity'] is not None else "N/A"],
                 ["Last Updated", datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
             ]
