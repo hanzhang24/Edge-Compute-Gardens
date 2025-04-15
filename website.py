@@ -9,6 +9,9 @@ app = Flask(__name__)
 LATENCY_LOG = "latency_log.txt"
 UPLOAD_FOLDER = "uploads"
 DEFAULT_IMAGE = "image.jpg"
+DEFAULT_TEMP = "15"
+DEFAULT_HUMIDITY = "35"
+DEFAULT_DATE = "2025-4-1"
 DEFAULT_IMAGE_PATH = os.path.join(UPLOAD_FOLDER, DEFAULT_IMAGE)
 GRADIO_API_URL = "Ilovexmlparsing/DukeGardens"  # Replace with your Gradio Space URL
 
@@ -26,9 +29,9 @@ latest_data = {
     "data": {
         "headers": ["Metric", "Value"],
         "rows": [
-            ["Temperature", "N/A"],
-            ["Humidity", "N/A"],
-            ["Last Updated", "N/A"]
+            ["Temperature", DEFAULT_TEMP],
+            ["Humidity", DEFAULT_HUMIDITY],
+            ["Last Updated", DEFAULT_DATE]
         ]
     },
     "temperature": None,
